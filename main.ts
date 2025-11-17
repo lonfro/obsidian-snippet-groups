@@ -1,6 +1,6 @@
 import { App, Modal, Notice, Plugin, Menu, Setting } from 'obsidian';
-import { title } from 'process';
 
+//#region Settings
 interface SnippetGroup {
     name: string;
     snippets: string[];
@@ -15,6 +15,7 @@ interface Settings {
 const DEFAULT_SETTINGS: Settings = {
 	snippetGroups: []
 }
+//#endregion
 
 export default class MyPlugin extends Plugin {
 	settings: Settings;
@@ -34,6 +35,17 @@ export default class MyPlugin extends Plugin {
         this.settingsObserver.disconnect();
 	}
 
+    //#region Plugin Settings
+	async loadSettings() {
+		this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
+	}
+
+	async saveSettings() {
+		await this.saveData(this.settings);
+	}
+    //#endregion
+
+    //#region Observers
     initModalObserver()
     {
         if (this.settingsObserver) this.settingsObserver.disconnect();
@@ -92,15 +104,9 @@ export default class MyPlugin extends Plugin {
             }
         })
     }
+    //#endregion
 
-	async loadSettings() {
-		this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
-	}
-
-	async saveSettings() {
-		await this.saveData(this.settings);
-	}
-
+    //#region DOM Helper Functions
     async RedrawAppearanceMenu()
     {
         const Header = Array.from(document.querySelectorAll(".setting-item.setting-item-heading"))
@@ -487,8 +493,10 @@ export default class MyPlugin extends Plugin {
 
         return shouldDrawCollapsed;
     }
+    //#endregion
 }
 
+//#region Modals
 class ManageGroupsModal extends Modal {
     plugin: MyPlugin
     PreselectedGroup: SnippetGroup | undefined
@@ -603,3 +611,4 @@ class ConfirmationModal extends Modal {
             )
     }
 }
+//#endregion
