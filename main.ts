@@ -421,7 +421,9 @@ export default class MyPlugin extends Plugin {
     RefreshGroups(groups: HTMLElement[], skipAnimation?: boolean)
     {
         groups.forEach(groupElement => {
-            let group = this.settings.snippetGroups.find(g => g.name == groupElement.querySelector(".setting-item-name")?.textContent);
+            // resize
+            let name = groupElement.querySelector(".setting-item-name");
+            let group = this.settings.snippetGroups.find(g => g.name == name?.textContent);
             if (group)
             {
                 let collapsed = this.RedrawGroupSize(groupElement, group.collapsed, skipAnimation);
@@ -430,6 +432,11 @@ export default class MyPlugin extends Plugin {
             else
             {
                 this.RedrawGroupSize(groupElement, undefined, skipAnimation);
+            }
+            // snippets count on hover
+            if (name?.parentElement)
+            {
+                name.parentElement.ariaLabel = `${groupElement.querySelector(".tree-item-children")?.childElementCount} Snippets`;
             }
         })
     }
