@@ -255,6 +255,7 @@ export default class MyPlugin extends Plugin {
 
             // move groups context menu
             snippet.oncontextmenu = (e) => {
+                e.stopPropagation();
                 new Menu()
                     .addItem(item => item
                         .setTitle("Move snippet to...")
