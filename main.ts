@@ -262,7 +262,6 @@ export default class MyPlugin extends Plugin {
                         .setIcon("send-to-back")
                         .onClick((e) => {
                             let snippetsMenu = new Menu();
-                            // move to "none"
                             snippetsMenu.addItem(item => item
                                 .setTitle("None")
                                 .onClick(() => {
@@ -281,6 +280,13 @@ export default class MyPlugin extends Plugin {
                                     }
                                 })
                             )
+                            snippetsMenu.addItem(item => item
+                                .setTitle("New Group")
+                                .onClick(() => {
+                                    ManageGroupsBtn?.click();
+                                })
+                            )
+                            snippetsMenu.addSeparator();
                             // make option for each group
                             this.settings.snippetGroups.forEach(g => {
                                 snippetsMenu.addItem(item => item
