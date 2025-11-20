@@ -1,0 +1,37 @@
+.snippetgroups-notransition {
+    transition: none !important;
+}
+
+.snippetgroups-displaynone {
+    display: none !important;
+}
+
+/* #region snippet groups styling */
+.snippetgroups-group {
+    width: 100%;
+    display: block;
+}
+.snippetgroups-group > .setting-item-info {
+    display: flex;
+    padding-left: 0px;
+    width: 100%;
+}
+.snippetgroups-group > .setting-item-info > .collapse-icon {
+    max-width: fit-content;
+    margin-right: 10px
+}
+.snippetgroups-group > .setting-item-info > .setting-item-name {
+    max-width: fit-content;
+}
+.snippetgroups-group > .tree-item-children {
+    padding-left: 3em;
+    overflow: hidden;
+    height: 0px;
+    margin-left: 4.5px;
+    transition: height var(--anim-duration-moderate) var(--anim-motion-smooth);
+}
+.snippetgroups-group > .tree-item-children > div {
+    padding-top: 0.75em;
+    padding-bottom: 0.75em;
+}
+/* #endregion */

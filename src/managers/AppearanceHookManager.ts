@@ -1,8 +1,12 @@
-import { Notice, Menu } from "obsidian";
+import { Notice, Menu, Setting } from "obsidian";
 import { SnippetGroup } from "types/Settings";
 import { ManageGroupsModal, ConfirmationModal } from "modals"
+import { SearchManager } from "./SearchManager";
 import SnippetGroupsPlugin from "main";
 
+/*
+ * Manages DOM/UI related tasks for the appearance menu contents.
+ */
 export class AppearanceHookManager {
     static scrollState: number | null;
     static SaveScrollState = (container: HTMLElement) => { this.scrollState = container.scrollTop; }
@@ -15,9 +19,14 @@ export class AppearanceHookManager {
         const Header = Array.from(document.querySelectorAll(".setting-item.setting-item-heading"))
                             .find(e => e.querySelector(".setting-item-name")?.textContent == "CSS snippets");
         const MenuContents = Header?.parentElement;
+
+        const groups: HTMLElement[] = [];
+        const snippets: HTMLElement[] = [];
     
         if (!MenuContents || !Header) return;
-    
+
+        //----------------------------- Setup Custom Elements -----------------------------//
+
         // Plugin Buttons
         const HeaderControls = Header?.querySelector(".setting-item-control");
         let ManageGroupsBtn: HTMLDivElement | null;
@@ -59,9 +68,20 @@ export class AppearanceHookManager {
             }
         }
     
-        const groups: HTMLElement[] = [];
-        const snippets: HTMLElement[] = [];
-        
+        // Search Snippets
+        const SearchEl = SearchManager.CreateSearchElement(MenuContents, (input: string) => {
+            const groupsWithResults = SearchManager.FilterSnippetsByInput(snippets, input);
+            if (!input || input.trim() == "")
+                this.RefreshGroups(_plugin, groups, true);
+            else
+                this.OpenGroups(_plugin, groups, groupsWithResults, true);
+        });
+        if (Header)
+        {
+            MenuContents.insertBefore(SearchEl, Header);
+        }
+    
+        //-------------------------- Actual Snippets Management --------------------------//        
         // collect snippets
         let _s = Header?.nextElementSibling;
         while (_s)
@@ -71,7 +91,7 @@ export class AppearanceHookManager {
         }
     
         for (const group of _settings.snippetGroups) {
-            const groupElement = this.NewGroupElement(_plugin, group);
+            const groupElement = this.NewGroupElement(_plugin, MenuContents, group);
             Header?.parentElement?.append(groupElement);
             groups.push(groupElement);
     
@@ -241,7 +261,7 @@ export class AppearanceHookManager {
                 if (snippet.parentElement.className == "tree-item-children"
                     && snippet.parentElement.parentElement?.parentElement)
                 {
-                    const fromGroup = groups.indexOf(snippet.parentElement.parentElement?.parentElement);
+                    const fromGroup = groups.indexOf(snippet.parentElement.parentElement);
                     if (fromGroup != -1)
                     {
                         _settings.snippetGroups[fromGroup].snippets.remove(arrivingSnippetName);
@@ -306,6 +326,8 @@ export class AppearanceHookManager {
     static RefreshGroups(_plugin: SnippetGroupsPlugin, groups: HTMLElement[], skipAnimation?: boolean)
     {
         groups.forEach(groupElement => {
+            groupElement.removeClass("snippetgroups-displaynone");
+
             // resize
             const name = groupElement.querySelector(".setting-item-name");
             const group = _plugin.settings.snippetGroups.find(g => g.name == name?.textContent);
@@ -326,23 +348,38 @@ export class AppearanceHookManager {
         })
     }
 
-    static NewGroupElement(_plugin: SnippetGroupsPlugin, group: SnippetGroup)
+    static OpenGroups(_plugin: SnippetGroupsPlugin, groups: HTMLElement[], toOpen: HTMLElement[], skipAnimation?: boolean)
     {
-        const groupElement = document.createElement("div");
-        groupElement.className = "setting-item  nav-folder";
+        groups.filter(g => !toOpen.contains(g)).forEach(groupElement => {
+            // this.RedrawGroupSize(groupElement, true, skipAnimation);
+            groupElement.addClass("snippetgroups-displaynone");
+        })
+        toOpen.forEach(groupElement => {
+            groupElement.removeClass("snippetgroups-displaynone");
+            this.RedrawGroupSize(groupElement, false, skipAnimation);
+            // snippets count on hover
+            let childContainer = groupElement.querySelector(".tree-item-children");
+            if (childContainer)
+            {
+                const count = Array.from(childContainer.children).filter((child: HTMLElement) => {
+                    return child.style.display != "none";
+                }).length;
+                childContainer.ariaLabel = `${count} Snippets`;
+            }
+        })
+    }
 
-        const infoDiv = groupElement.createEl("div", { cls: "setting-item-info" });
-
-        const titleDiv = infoDiv.createEl("div", { cls: "nav-file-title" });
-
-        titleDiv.setAttr("style", "display: inline-flex; padding-left: 0px; width: 100%;");
-
-        const collapseDiv = titleDiv.createEl("div", { cls: "collapse-icon is-collapsed" });
-        collapseDiv.setAttr("style", "max-width: fit-content; margin-right: 10px");
-
+    static NewGroupElement(_plugin: SnippetGroupsPlugin, parentEl: HTMLElement, group: SnippetGroup)
+    {
+        const groupEl = new Setting(parentEl).setClass("snippetgroups-group").setName(group.name);
+        groupEl.settingEl.addClass("nav-folder"); // drag over
+        groupEl.infoEl.addClass("nav-file-title"); // title hover
+        
+        let collapseDiv = groupEl.settingEl.createEl("div", { cls: "collapse-icon is-collapsed" });
+        groupEl.infoEl.insertBefore(collapseDiv, groupEl.nameEl);
         const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-        svg.setAttribute("class", "svg-icon right-triangle");
         collapseDiv.appendChild(svg);
+        svg.addClasses(["svg-icon", "right-triangle"]);
         svg.setAttrs({
             xmlns: "http://www.w3.org/2000/svg",
             width: "24",
@@ -358,36 +395,19 @@ export class AppearanceHookManager {
         path.setAttribute("d", "M3 8L12 17L21 8");
         svg.appendChild(path);
 
-        const nameDiv = titleDiv.createEl("div", { cls: "setting-item-name" });
-        nameDiv.setAttr("style", "max-width: fit-content;");
-        nameDiv.setText(group.name);
+        groupEl.settingEl.createEl("div", { cls: "tree-item-children" })
 
-        // Tree children container
-        const childrenDiv = infoDiv.createEl("div", { cls: "tree-item-children" });
-        childrenDiv.setAttr(
-            "style",
-            "padding-left: 3em; overflow: hidden; height: 0; display: none; margin-left: 4.5px; transition: height var(--anim-duration-moderate) var(--anim-motion-smooth);"
-        );
-
-        const style = document.createElement("style");
-        style.textContent = `
-        .setting-item-info > .tree-item-children > div {
-            padding-top: 0.75em;
-            padding-bottom: 0.75em;
-        }`;
-        document.head.appendChild(style);
-
-        groupElement.querySelector(".nav-file-title")?.addEventListener("click", HandleGroupClick.bind(this));
-        if (group.collapsed == false) this.RedrawGroupSize(groupElement, false);
+        groupEl.infoEl.addEventListener("click", HandleGroupClick.bind(this));
+        if (group.collapsed == false) this.RedrawGroupSize(groupEl.settingEl, false);
 
         function HandleGroupClick()
         {
             group.collapsed = !group.collapsed;
-            group.collapsed = this.RedrawGroupSize(groupElement, group.collapsed);
+            group.collapsed = this.RedrawGroupSize(groupEl.settingEl, group.collapsed);
             _plugin.saveSettings();
         }
 
-        return groupElement;
+        return groupEl.settingEl;
     }
 
     static RedrawGroupSize(groupElement: HTMLElement, shouldDrawCollapsed?: boolean, skipAnimation?: boolean)
@@ -398,13 +418,27 @@ export class AppearanceHookManager {
 
         if (shouldDrawCollapsed == null) shouldDrawCollapsed = container.style.height == "0px";
         if (empty) shouldDrawCollapsed = true;
-        
-        container.style.display = "";
 
         if (shouldDrawCollapsed)
         {
             container.style.height = "0px";
             collapseIcon.classList.add("is-collapsed");
+            if (skipAnimation)
+            {
+                container.addClass("snippetgroups-notransition");
+                const svg = collapseIcon.querySelector("svg");
+                if (svg)
+                {
+                    svg.addClass("snippetgroups-notransition");
+                }
+                requestAnimationFrame(() => {
+                    container.removeClass("snippetgroups-notransition");
+                    if (skipAnimation && svg)
+                    {
+                        svg.removeClass("snippetgroups-notransition");
+                    }
+                })
+            }
         } 
         else
         {
@@ -422,14 +456,14 @@ export class AppearanceHookManager {
                     container.style.height = fitHeight + "px";
                     if (svg)
                     {
-                        svg.style.transition = "none";
+                        svg.addClass("snippetgroups-notransition");
                     }
                 }
                 requestAnimationFrame(() => {
                     container.style.height = fitHeight + "px";
                     if (skipAnimation && svg)
                     {
-                        svg.style.transition = "";
+                        svg.removeClass("snippetgroups-notransition");
                     }
                 })
             })
@@ -441,7 +475,6 @@ export class AppearanceHookManager {
             const isNowCollapsed = container.style.height == "0px";
             if (isNowCollapsed)
             {
-                container.style.display = "none";
                 container.removeEventListener("transitionend", OnTransitionEnd)
             }
         }
