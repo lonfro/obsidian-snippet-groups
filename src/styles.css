@@ -2,6 +2,14 @@
 .snippetgroups-displaynone { display: none !important; }
 .snippetgroups-heightauto { height: auto !important; }
 
+.manage-snippet-groups-btn {
+    stroke-width: 1.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    width: var(--icon-size);
+    height: var(--icon-size);
+}
+
 /* #region snippet groups styling */
 .snippetgroups-group {
     width: 100%;
