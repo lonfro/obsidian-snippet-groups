@@ -1,4 +1,4 @@
-import { Notice, Menu, Setting, setIcon } from "obsidian";
+import { Notice, Menu, Setting } from "obsidian";
 import { SnippetGroup } from "types/Settings";
 import { ManageGroupsModal, ConfirmationModal } from "modals"
 import { SearchManager } from "./SearchManager";
@@ -137,7 +137,7 @@ export class AppearanceHookManager {
                                 await _plugin.saveSettings();
                                 (ReloadSnippetsBtn as HTMLElement).click();
                             }
-                            new ConfirmationModal(_plugin.app, `Are you sure you want to delete "${group.name}"?`, async () => {
+                            new ConfirmationModal(_plugin.app, `Are you sure you want to delete "${group.name}"?`, () => {
                                 void onConfirmCallback().catch(console.error);
                             }).open()
                         })

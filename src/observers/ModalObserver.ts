@@ -57,7 +57,7 @@ export class ModalObserver {
         {
             if (!AppearanceButton.onclick)
             {
-                this.plugin.registerDomEvent(AppearanceButton, "click", async () => {
+                this.plugin.registerDomEvent(AppearanceButton, "click", () => {
                     AppearanceHookManager.RedrawAppearanceMenu(this.plugin);
                 })
             }
