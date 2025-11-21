@@ -14,7 +14,7 @@ export class NoticeObserver {
         this.plugin = _plugin;
 
         if (this.observer) this.observer.disconnect();
-        this.observer = new MutationObserver(async (mutations, obs) => {
+        this.observer = new MutationObserver((mutations, obs) => {
             outer: for (const mutation of mutations)
             {
                 for (const node of Array.from(mutation.addedNodes))
@@ -27,7 +27,7 @@ export class NoticeObserver {
                                                             .find(e => e.textContent == "Appearance") == null;
                             if (!appearanceMenuClosed)
                             {
-                                await AppearanceHookManager.RedrawAppearanceMenu(this.plugin);
+                                AppearanceHookManager.RedrawAppearanceMenu(this.plugin);
                                 if (this.MenuContents) AppearanceHookManager.RestoreScrollState(this.MenuContents);
                             }
                             this.observer.disconnect();

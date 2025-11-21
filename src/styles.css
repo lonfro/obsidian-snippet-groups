@@ -1,10 +1,6 @@
-.snippetgroups-notransition {
-    transition: none !important;
-}
-
-.snippetgroups-displaynone {
-    display: none !important;
-}
+.snippetgroups-notransition { transition: none !important; }
+.snippetgroups-displaynone { display: none !important; }
+.snippetgroups-heightauto { height: auto !important; }
 
 /* #region snippet groups styling */
 .snippetgroups-group {
@@ -17,8 +13,7 @@
     width: 100%;
 }
 .snippetgroups-group > .setting-item-info > .collapse-icon {
-    max-width: fit-content;
-    margin-right: 10px
+    width: var(--size-4-4);
 }
 .snippetgroups-group > .setting-item-info > .setting-item-name {
     max-width: fit-content;

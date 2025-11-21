@@ -1,4 +1,4 @@
-import { Notice, Menu, Setting } from "obsidian";
+import { Notice, Menu, Setting, setIcon, addIcon } from "obsidian";
 import { SnippetGroup } from "types/Settings";
 import { ManageGroupsModal, ConfirmationModal } from "modals"
 import { SearchManager } from "./SearchManager";
@@ -36,15 +36,7 @@ export class AppearanceHookManager {
             ManageGroupsBtn = document.createElement("div");
             ManageGroupsBtn.className = "clickable-icon extra-setting-button";
             ManageGroupsBtn.ariaLabel = "Manage snippet groups";
-            ManageGroupsBtn.innerHTML = `
-            <svg xmlns="http://www.w3.org/2000/svg" style="width: var(--icon-size); height: var(--icon-size);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-group-icon lucide-group">
-                <path d="M12 5.56006H22" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"></path>
-                <path d="M14.22 2H19.78C21.56 2 22 2.44 22 4.2V8.31C22 10.07 21.56 10.51 19.78 10.51H14.22C12.44 10.51 12 10.07 12 8.31V4.2C12 2.44 12.44 2 14.22 2Z" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
-                <path d="M2 17.0601H12" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"></path>
-                <path d="M4.22 13.5H9.78C11.56 13.5 12 13.94 12 15.7V19.81C12 21.57 11.56 22.01 9.78 22.01H4.22C2.44 22.01 2 21.57 2 19.81V15.7C2 13.94 2.44 13.5 4.22 13.5Z" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
-                <path d="M22 15C22 18.87 18.87 22 15 22L16.05 20.25" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
-                <path d="M2 9C2 5.13 5.13 2 9 2L7.95001 3.75" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
-            </svg>`;
+            setIcon(ManageGroupsBtn, "square-dashed-mouse-pointer");
             ManageGroupsBtn.style.maxWidth = (HeaderControls.childNodes[0] as HTMLElement).style.width;
             ManageGroupsBtn.style.maxHeight = (HeaderControls.childNodes[0] as HTMLElement).style.height;
             HeaderControls.insertBefore(ManageGroupsBtn, HeaderControls.childNodes[0]);
@@ -116,11 +108,15 @@ export class AppearanceHookManager {
                         .setTitle("Delete group")
                         .setWarning(true)
                         .onClick(() => {
-                            new ConfirmationModal(_plugin.app, `Are you sure you want to delete "${group.name}"?`, async () => {
+                            async function onConfirmCallback()
+                            {
                                 // confirmation callback
                                 _settings.snippetGroups.remove(group);
                                 await _plugin.saveSettings();
                                 (ReloadSnippetsBtn as HTMLElement).click();
+                            }
+                            new ConfirmationModal(_plugin.app, `Are you sure you want to delete "${group.name}"?`, async () => {
+                                void onConfirmCallback().catch(console.error);
                             }).open()
                         })
                     )
@@ -408,11 +404,11 @@ export class AppearanceHookManager {
         groupEl.infoEl.addEventListener("click", HandleGroupClick.bind(this));
         if (group.collapsed == false) this.RedrawGroupSize(groupEl.settingEl, false);
 
-        function HandleGroupClick()
+        async function HandleGroupClick()
         {
             group.collapsed = !group.collapsed;
             group.collapsed = this.RedrawGroupSize(groupEl.settingEl, group.collapsed);
-            _plugin.saveSettings();
+            await _plugin.saveSettings();
         }
 
         return groupEl.settingEl;
@@ -429,30 +425,30 @@ export class AppearanceHookManager {
 
         if (shouldDrawCollapsed)
         {
-            container.style.height = "0px";
+            container.style.height = 0 + "px";
             collapseIcon.classList.add("is-collapsed");
             if (skipAnimation)
             {
                 container.addClass("snippetgroups-notransition");
-                const svg = collapseIcon.querySelector("svg");
-                if (svg)
+                const chevron = collapseIcon.children[0];
+                if (chevron)
                 {
-                    svg.addClass("snippetgroups-notransition");
+                    chevron.addClass("snippetgroups-notransition");
                 }
                 requestAnimationFrame(() => {
                     container.removeClass("snippetgroups-notransition");
-                    if (skipAnimation && svg)
+                    if (skipAnimation && chevron)
                     {
-                        svg.removeClass("snippetgroups-notransition");
+                        chevron.removeClass("snippetgroups-notransition");
                     }
                 })
             }
         } 
         else
         {
-            const svg = collapseIcon.querySelector("svg");
+            const chevron = collapseIcon.children[0];
             const currentHeight = container.offsetHeight;
-            container.style.height = "auto"
+            container.style.height = "auto" + "";
             // Directly setting auto doesnt animate, so we need to find its height
             // then set it back to normal, and then set the height in pixels.
             requestAnimationFrame(() => {
@@ -462,16 +458,16 @@ export class AppearanceHookManager {
                 if (skipAnimation)
                 {
                     container.style.height = fitHeight + "px";
-                    if (svg)
+                    if (chevron)
                     {
-                        svg.addClass("snippetgroups-notransition");
+                        chevron.addClass("snippetgroups-notransition");
                     }
                 }
                 requestAnimationFrame(() => {
                     container.style.height = fitHeight + "px";
-                    if (skipAnimation && svg)
+                    if (skipAnimation && chevron)
                     {
-                        svg.removeClass("snippetgroups-notransition");
+                        chevron.removeClass("snippetgroups-notransition");
                     }
                 })
             })

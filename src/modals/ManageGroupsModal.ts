@@ -56,11 +56,15 @@ export class ManageGroupsModal extends Modal {
                     .setIcon("delete")
                     .setWarning()
                     .onClick(() => {
-                        new ConfirmationModal(this.app, `Are you sure you want to delete "${group.name}"?`, async () => {
+                        async function onConfirmCallback(_this: ManageGroupsModal)
+                        {
                             // confirmation callback
-                            this.plugin.settings.snippetGroups.remove(group);
-                            await this.plugin.saveSettings();
-                            this.onOpen();
+                            _this.plugin.settings.snippetGroups.remove(group);
+                            await _this.plugin.saveSettings();
+                            _this.onOpen();
+                        }
+                        new ConfirmationModal(this.app, `Are you sure you want to delete "${group.name}"?`, () => {
+                            void onConfirmCallback(this).catch(console.error);
                         }).open()
                     })
                 );

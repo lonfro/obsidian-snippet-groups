@@ -23,7 +23,7 @@ export class ModalObserver {
             }
         }
         if (this.observer) this.observer.disconnect();
-        this.observer = new MutationObserver(async (mutations, obs) => {
+        this.observer = new MutationObserver((mutations, obs) => {
             for (const mutation of mutations)
             {
                 for (const node of Array.from(mutation.addedNodes))
@@ -40,7 +40,7 @@ export class ModalObserver {
                                                         .find(e => e.textContent == "Appearance");
                         if (appearanceMenu)
                         {
-                            await AppearanceHookManager.RedrawAppearanceMenu(this.plugin);
+                            AppearanceHookManager.RedrawAppearanceMenu(this.plugin);
                         }
                     }
                 }
@@ -58,7 +58,7 @@ export class ModalObserver {
             if (!AppearanceButton.onclick)
             {
                 this.plugin.registerDomEvent(AppearanceButton, "click", async () => {
-                    await AppearanceHookManager.RedrawAppearanceMenu(this.plugin);
+                    AppearanceHookManager.RedrawAppearanceMenu(this.plugin);
                 })
             }
         }
