@@ -1,6 +1,7 @@
 import { Plugin } from 'obsidian';
 import { Settings, DEFAULT_SETTINGS } from "types/Settings";
 import { ModalObserver, NoticeObserver } from 'observers';
+import { LocalisationManager } from 'managers/LocalisationManager';
 
 export default class SnippetGroupsPlugin extends Plugin {
 	settings: Settings;
@@ -9,6 +10,9 @@ export default class SnippetGroupsPlugin extends Plugin {
 
 	async onload() {
 		await this.loadSettings();
+
+        LocalisationManager.init();
+        console.log(LocalisationManager.i18next);
 
         this.modalObserver = new ModalObserver();
         this.modalObserver.init(this);

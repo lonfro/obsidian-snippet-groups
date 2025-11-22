@@ -1,13 +1,14 @@
 import { Setting } from "obsidian";
+import { LocalisationManager } from "./LocalisationManager";
 
 export class SearchManager {
     static CreateSearchElement(parentContainer: HTMLElement, changeCallback: (input: string) => void): HTMLElement
     {
         return new Setting(parentContainer)
-            .setName("Search css snippets")
-            .setDesc("Filter css snippets by name.")
+            .setName(LocalisationManager.getNs("appearance.search.title"))
+            .setDesc(LocalisationManager.getNs("appearance.search.description"))
             .addSearch(s => s
-                .setPlaceholder("Search css snippets...")
+                .setPlaceholder(LocalisationManager.getNs("appearance.search.placeholder"))
                 .onChange(value => {
                     changeCallback(value);
                 })

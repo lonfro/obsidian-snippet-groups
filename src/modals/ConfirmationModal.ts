@@ -1,3 +1,4 @@
+import { LocalisationManager } from "managers/LocalisationManager";
 import { App, Modal, Setting } from "obsidian";
 
 export class ConfirmationModal extends Modal {
@@ -12,13 +13,13 @@ export class ConfirmationModal extends Modal {
     onOpen() {
         new Setting(this.contentEl)
             .addButton(button => button
-                .setButtonText("No")
+                .setButtonText(LocalisationManager.getNs("ui.no"))
                 .onClick(() => {
                     this.close();
                 })
             )
             .addButton(button => button
-                .setButtonText("Yes")
+                .setButtonText(LocalisationManager.getNs("ui.yes"))
                 .setWarning()
                 .onClick(() => {
                     this.submitCallback();

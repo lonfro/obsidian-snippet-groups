@@ -38,7 +38,7 @@ export class AppearanceHookManager {
         {
             ManageGroupsBtn = document.createElement("div");
             ManageGroupsBtn.className = "clickable-icon extra-setting-button";
-            ManageGroupsBtn.ariaLabel = "Manage snippet groups";
+            ManageGroupsBtn.ariaLabel = LocalisationManager.getNs("appearance.manage-groups-btn");
             
             const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
             ManageGroupsBtn.appendChild(svg);
@@ -117,7 +117,7 @@ export class AppearanceHookManager {
             groupElement.oncontextmenu = (e: MouseEvent) => {
                 new Menu()
                     .addItem(item => item
-                        .setTitle("Rename group")
+                        .setTitle(LocalisationManager.getNs("appearance.group-context-menu.rename"))
                         .onClick(() => {
                             if (ManageGroupsBtn)
                             {
@@ -130,7 +130,7 @@ export class AppearanceHookManager {
                         })
                     )
                     .addItem(item => item
-                        .setTitle("Delete group")
+                        .setTitle(LocalisationManager.getNs("appearance.group-context-menu.delete"))
                         .setWarning(true)
                         .onClick(() => {
                             async function onConfirmCallback()
@@ -140,9 +140,16 @@ export class AppearanceHookManager {
                                 await _plugin.saveSettings();
                                 (ReloadSnippetsBtn as HTMLElement).click();
                             }
-                            new ConfirmationModal(_plugin.app, `Are you sure you want to delete "${group.name}"?`, () => {
-                                void onConfirmCallback().catch(console.error);
-                            }).open()
+                            new ConfirmationModal(
+                                _plugin.app,
+                                LocalisationManager.getNsVars(
+                                    "modals.confirmation.delete",
+                                    null,
+                                    [{key: "snippet", value: group.name}]
+                                ),
+                                () => {
+                                    void onConfirmCallback().catch(console.error);
+                                }).open()
                         })
                     )
                     .showAtMouseEvent(e)
@@ -200,12 +207,13 @@ export class AppearanceHookManager {
                 e.stopPropagation();
                 new Menu()
                     .addItem(item => item
-                        .setTitle("Move snippet to...")
+                        .setTitle(LocalisationManager.getNs("appearance.snippet-context-menu.move-to"))
                         .setIcon("send-to-back")
                         .onClick((e) => {
+                            const noneGroupName = LocalisationManager.getNs("appearance.snippet-context-menu.none-group");
                             const snippetsMenu = new Menu();
                             snippetsMenu.addItem(item => item
-                                .setTitle("None")
+                                .setTitle(noneGroupName)
                                 .onClick(() => {
                                     const name = snippet.querySelector(".setting-item-name")?.textContent;
                                     if (name)
@@ -218,12 +226,16 @@ export class AppearanceHookManager {
                                         }
                                         this.RefreshSnippets(_plugin, snippets, groups, MenuContents);
                                         this.RefreshGroups(_plugin, groups);
-                                        new Notice(`Moved css snippet "${name}" into root area.`);
+                                        new Notice(LocalisationManager.getNsVars(
+                                            "appearance.snippet-context-menu.moved-notice",
+                                            null,
+                                            [{key: "snippet", value: name}, {key: "group", value: noneGroupName}]
+                                        ));
                                     }
                                 })
                             )
                             snippetsMenu.addItem(item => item
-                                .setTitle("New group")
+                                .setTitle(LocalisationManager.getNs("appearance.snippet-context-menu.new-group"))
                                 .onClick(() => {
                                     ManageGroupsBtn?.click();
                                 })
@@ -246,7 +258,11 @@ export class AppearanceHookManager {
                                             g.snippets.push(name);
                                             this.RefreshSnippets(_plugin, snippets, groups, MenuContents);
                                             this.RefreshGroups(_plugin, groups);
-                                            new Notice(`Moved css snippet "${name}" into snippet group "${g.name}".`);
+                                            new Notice(LocalisationManager.getNsVars(
+                                                "appearance.snippet-context-menu.moved-notice",
+                                                null,
+                                                [{key: "snippet", value: name}, {key: "group", value: g.name}]
+                                            ));
                                         }
                                     })
                                 )
@@ -365,7 +381,7 @@ export class AppearanceHookManager {
             // snippets count on hover
             if (name?.parentElement)
             {
-                name.parentElement.ariaLabel = `${groupElement.querySelector(".tree-item-children")?.childElementCount} Snippets`;
+                name.parentElement.ariaLabel = `${groupElement.querySelector(".tree-item-children")?.childElementCount}`;
             }
         })
     }
@@ -392,7 +408,7 @@ export class AppearanceHookManager {
                     const count = Array.from(childContainer.children).filter((child: HTMLElement) => {
                         return child.style.display != "none";
                     }).length;
-                    nameEl.ariaLabel = `${count} Snippets`;
+                    nameEl.ariaLabel = `${count}`;
                 }
             }
         })

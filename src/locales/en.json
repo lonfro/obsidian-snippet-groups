@@ -1,0 +1,36 @@
+{
+    "ui": {
+        "yes": "Yes",
+        "no": "No"
+    },
+    "appearance": {
+        "search": {
+            "title": "Search css snippets",
+            "description": "Filter css snippets by name.",
+            "placeholder": "Search css snippets..."
+        },
+        "group-context-menu": {
+            "rename": "Rename group",
+            "delete": "Delete group"
+        },
+        "snippet-context-menu": {
+            "move-to": "Move snippet to...",
+            "none-group": "None",
+            "new-group": "New group",
+            "moved-notice": "Moved '{{- snippet}}' into '{{- group}}'."
+        },
+        "manage-groups-btn": "Manage snippet groups",
+        "snippets-count-aria": "{{- amount}} snippets"
+    },
+    "modals": {
+        "manage-snippet-groups": {
+            "title": "Manage snippet groups",
+            "name-placeholder": "Name",
+            "add-btn": "Add group",
+            "default-group-name": "New group"
+        },
+        "confirmation": {
+            "delete": "Are you sure you want to delete: {{- snippet}}"
+        }
+    }
+}
