@@ -1,0 +1,35 @@
+{
+    "ui": {
+        "yes": "mew",
+        "no": "munt"
+    },
+    "appearance": {
+        "search": {
+            "title": "Search the epstein files",
+            "description": "Filter victims by name.",
+            "placeholder": "Search for victims"
+        },
+        "group-context-menu": {
+            "rename": "Censor group",
+            "delete": "Redact victim"
+        },
+        "snippet-context-menu": {
+            "move-to": "Jelqing to the moon...",
+            "none-group": "None",
+            "new-group": "New leaks",
+            "moved-notice": "Moved '{{- snippet}}' into '{{- group}}'."
+        },
+        "manage-groups-btn": "Manage diddlerlist"
+    },
+    "modals": {
+        "manage-snippet-groups": {
+            "title": "Manage snippet groups",
+            "name-placeholder": "Name",
+            "add-btn": "Jelq to the jonkler",
+            "default-group-name": "WE ARE CHARLIE KIRK"
+        },
+        "confirmation": {
+            "delete": "Do u wanna eradicate: {{- snippet}}"
+        }
+    }
+}
